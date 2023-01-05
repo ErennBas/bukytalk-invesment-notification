@@ -2,6 +2,8 @@
 const { initializeApp } = require('firebase/app');
 const { getMessaging, getToken } = require('firebase/messaging');
 const fs = require('fs');
+var request = require('request');
+const { parse } = require('node-html-parser');
 
 var fcmAdmin = require("firebase-admin");
 const path = require("path");
@@ -88,6 +90,67 @@ app.get('/', function (req, res) {
     //   });
 
 });
+
+
+app.get('/test', function (req, res) {
+    request({ url: "https://www.fonangels.com/kampanyalar/projehakkinda/BukyTalk?pid=214" }, function (error, response, body) {
+        var toplam = body.slice(body.indexOf("Toplam Yatırım:") + 70, body.indexOf("Yatırımcı:")).replace("</th>", "").replace("</tr>", "").replace("<tr>", "").replace("<td>", "").replace(".", "").trim();
+        fs.readFile('last.txt', (err, data) => {
+            if (String(data) !== toplam) {
+                fs.writeFile('last.txt', toplam, (err) => {
+                    if (err) throw err;
+                    console.log('Data written to file');
+                });
+                var fark = Number(toplam) - Number(String(data));
+                var yuzde = ((Number(toplam) * 100) / 2100000).toFixed(2);
+                let tl = new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY',
+                });
+
+                fs.readFile('fcms.json', (err, data) => {
+                    if (err) throw err;
+                    let tokens = JSON.parse(data);
+                    console.log(tokens);
+                    for (let i = 0; i < tokens.length; i++) {
+                        var options = {
+                            'method': 'POST',
+                            'url': 'https://fcm.googleapis.com/fcm/send',
+                            'headers': {
+                                'Authorization': 'key=AAAA1Fk4uFQ:APA91bGU08jw2M036VMfnWkt1KGWAJ0TEfzAQn_dhR4XvcP9N5oDBrM4Xt9PW4ygLZYiPWV_D2aV4Yv9nfN3DCWiDThQ3Ek8LFuAENgn8swlzxPSevSGEZ0aDlkW97nTgGRU2Q25X2Uu',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                "notification": {
+                                    "title": `${tl.format(fark)} yatırım geldi!!`,
+                                    "body": `Toplam yatırım ${tl.format(toplam)} \n Hedef yüzdesi ${yuzde}%`,
+                                    "icon": "https://bukytalk.com/images/logo.webp",
+                                    "click_action": "https://www.fonangels.com/kampanyalar/projehakkinda/BukyTalk?pid=214"
+                                },
+                                "to": tokens[i]
+                            })
+
+                        };
+                        request(options, function (error, response) {
+                            if (error) throw new Error(error);
+                            console.log(response.body);
+                            res.send("1");
+                        });
+                    }
+                    res.send("2");
+                });
+            }
+            else {
+                console.log("aynı");
+                res.send(toplam);
+            }
+        });
+    })
+});
+
+
+
+
 
 app.listen(3000, function () {
     console.log('Sunucu çalışıyor...');

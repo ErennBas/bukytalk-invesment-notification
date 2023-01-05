@@ -34,11 +34,10 @@
       messaging.onMessage((payload) => 
       {
         console.log(payload);
-        //   var obj = jQuery.parseJSON(payload.data.message);
-        //   var notification = new Notification(obj.title,{
-        //     icon:obj.icon,
-        //     body:obj.body
-        //   });
+          var notification = new Notification(payload.notification.title,{
+            icon: payload.notification.icon,
+            body: payload.notification.body
+          });
       });
       
     
