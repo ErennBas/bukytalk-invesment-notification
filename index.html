@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="token-div">İşlem yapılıyor...</div>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-messaging.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script>
+
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyD3ONDD49hu6KAUF_sOaA-P8R1KMvD5mBY",
+            authDomain: "utility-tempo-266816.firebaseapp.com",
+            databaseURL: "https://utility-tempo-266816.firebaseio.com",
+            projectId: "utility-tempo-266816",
+            storageBucket: "utility-tempo-266816.appspot.com",
+            messagingSenderId: "912029956180",
+            appId: "1:912029956180:web:66f85a8f7fc163e20d95c1",
+            measurementId: "G-X75WKB0VVG"
+      };
+        
+        firebase.initializeApp(firebaseConfig);
+    
+    
+      const messaging = firebase.messaging();
+      messaging.onMessage((payload) => 
+      {
+        console.log(payload);
+        //   var obj = jQuery.parseJSON(payload.data.message);
+        //   var notification = new Notification(obj.title,{
+        //     icon:obj.icon,
+        //     body:obj.body
+        //   });
+      });
+      
+    
+    
+      function token_olustur() {
+        $(".token-div").html("İşlem yapılıyor...");
+        messaging.getToken({vapidKey: 'BLy6FjtuX7Wu1oh8dVEU7v5uTBZ00w0YxZl9nudf2txjt8-Bo9xFfikli3VjBtPtQoq_7-OrbgPTJpoFwTWTXyY'}).then((currentToken) => {
+          if (currentToken) 
+          {
+              $(".token-div").html(currentToken);
+    
+              $.ajax({
+                url: "/token",
+                method: "GET",
+                data: { "token": currentToken },
+              });
+              
+          } 
+          else 
+          {
+             $(".token-div").html("Token alınırken bir hata oluştu.");
+          }
+        }).catch((err) => {
+            $(".token-div").html("Bir hata oluştu."+ err);
+        });
+      }
+    
+      token_olustur();
+    </script>
+</body>
+
+</html>
