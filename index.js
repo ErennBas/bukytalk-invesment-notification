@@ -94,7 +94,7 @@ app.get('/', function (req, res) {
 
 app.get('/test', function (req, res) {
     request({ url: "https://www.fonangels.com/kampanyalar/projehakkinda/BukyTalk?pid=214" }, function (error, response, body) {
-        var toplam = body.slice(body.indexOf("Toplam Yatırım:") + 70, body.indexOf("Yatırımcı:")).replace("</th>", "").replace("</tr>", "").replace("<tr>", "").replace("<td>", "").replace(".", "").trim();
+        var toplam = body.slice(body.indexOf("Toplam Yatırım:") + 70, body.indexOf("Yatırımcı:")).replace("</th>", "").replace("</tr>", "").replace("<tr>", "").replace("<td>", "").replaceAll(".", "").trim();
         fs.readFile('last.txt', (err, data) => {
             if (String(data) !== toplam) {
                 fs.writeFile('last.txt', toplam, (err) => {
@@ -134,15 +134,16 @@ app.get('/test', function (req, res) {
                         request(options, function (error, response) {
                             if (error) throw new Error(error);
                             console.log(response.body);
-                            res.send("1");
+                            console.log("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                            res.end(200);
                         });
                     }
-                    res.send("2");
+                    res.end("2");
                 });
             }
             else {
                 console.log("aynı");
-                res.send(toplam);
+                res.end(toplam);
             }
         });
     })
